@@ -9,7 +9,7 @@ require Exporter;
 require DynaLoader;
 use AutoLoader;
 
-my @functions = qw(if_addr if_broadcast if_netmask if_dstaddr if_hwaddr if_flags if_list);
+my @functions = qw(if_addr if_broadcast if_netmask if_dstaddr if_hwaddr if_flags if_list addr_to_interface);
 my @flags     = qw(IFF_ALLMULTI    IFF_AUTOMEDIA  IFF_BROADCAST
 		   IFF_DEBUG       IFF_LOOPBACK   IFF_MASTER
 		   IFF_MULTICAST   IFF_NOARP      IFF_NOTRAILERS
@@ -25,7 +25,7 @@ my @flags     = qw(IFF_ALLMULTI    IFF_AUTOMEDIA  IFF_BROADCAST
 @EXPORT = qw( );
 
 @ISA = qw(Exporter DynaLoader);
-$VERSION = '0.90';
+$VERSION = '0.94';
 
 sub AUTOLOAD {
     # This AUTOLOAD is used to 'autoload' constants from the constant()
@@ -67,6 +67,16 @@ sub if_list {
   sort keys %hash;
 }
 
+sub addr_to_interface {
+  my ($sock,$addr) = @_;
+  return "any" if $addr eq '0.0.0.0';
+  my @interfaces = $sock->if_list;
+  foreach (@interfaces) {
+    return $_ if $sock->if_addr($_) eq $addr;
+  }
+  return;  # couldn't find it
+}
+
 # Autoload methods go after =cut, and are processed by the autosplit program.
 
 1;
@@ -102,6 +112,8 @@ IO::Interface - Perl extension for access to network card configuration informat
     print "is notrailers\n"  if $flags & IFF_NOTRAILERS;
     print "is noarp\n"       if $flags & IFF_NOARP;
   }
+  
+  $interface = $s->addr_to_interface('127.0.0.1');
 
 
 =head1 DESCRIPTION
@@ -143,6 +155,9 @@ will return a true value if the operation was successful.
   my $oldaddr = $s->if_addr('eth0');
   $s->if_addr('eth0','192.168.8.10') || die "couldn't set address: $!";
 
+Special case: the address of the pseudo-device "any" will return the
+IP address "0.0.0.0", which corresponds to the INADDR_ANY constant.
+
 =item $broadcast = $s->if_broadcast($ifname [,$newbroadcast]
 
 Get or set the interface broadcast address.  If the interface does not
@@ -165,6 +180,12 @@ ethernet addresses in the form "00:60:2D:2D:51:70" are accepted.
 
 Get or set the flags for the interface.  The flags are a bitmask
 formed from a series of constants.  See L<Exportable constants> below.
+
+=item $ifname = $s->addr_to_interface($ifaddr)
+
+Given an interface address in dotted form, returns the name of the
+interface associated with it.  Special case: the INADDR_ANY address,
+0.0.0.0 will return a pseudo-interface name of "any".
 
 =back
 

@@ -379,20 +379,24 @@ if_addr(sock, name, ...)
 #if !(defined(HAS_IOCTL) && defined(SIOCGIFADDR))
      XSRETURN_UNDEF;
 #else
-     bzero((void*)&ifr,sizeof(struct ifreq));
-     strncpy(ifr.ifr_name,name,IFNAMSIZ-1);
-     ifr.ifr_addr.sa_family = AF_INET;
-     if (items > 2) {
-       newaddr = SvPV(ST(2),len);
-       if ( inet_aton(newaddr,&((struct sockaddr_in*)&ifr.ifr_addr)->sin_addr) == 0 ) 
-	 croak("Invalid inet address");
-       operation = SIOCSIFADDR; 
+     if (strncmp(name,"any",3) == 0) {
+       RETVAL = "0.0.0.0";
      } else {
-       operation = SIOCGIFADDR;
+       bzero((void*)&ifr,sizeof(struct ifreq));
+       strncpy(ifr.ifr_name,name,IFNAMSIZ-1);
+       ifr.ifr_addr.sa_family = AF_INET;
+       if (items > 2) {
+	 newaddr = SvPV(ST(2),len);
+	 if ( inet_aton(newaddr,&((struct sockaddr_in*)&ifr.ifr_addr)->sin_addr) == 0 ) 
+	   croak("Invalid inet address");
+	 operation = SIOCSIFADDR; 
+       } else {
+	 operation = SIOCGIFADDR;
+       }
+       if (!Ioctl(sock,operation,&ifr)) XSRETURN_UNDEF;
+       if (ifr.ifr_addr.sa_family != AF_INET) croak ("Address is not in the AF_INET family.\n");
+       RETVAL = inet_ntoa(((struct sockaddr_in*) &ifr.ifr_addr)->sin_addr);
      }
-     if (!Ioctl(sock,operation,&ifr)) XSRETURN_UNDEF;
-     if (ifr.ifr_addr.sa_family != AF_INET) croak ("Address is not in the AF_INET family.\n");
-     RETVAL = inet_ntoa(((struct sockaddr_in*) &ifr.ifr_addr)->sin_addr);
 #endif
    }
    OUTPUT:
