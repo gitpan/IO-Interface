@@ -25,7 +25,7 @@ my @flags     = qw(IFF_ALLMULTI    IFF_AUTOMEDIA  IFF_BROADCAST
 @EXPORT = qw( );
 
 @ISA = qw(Exporter DynaLoader);
-$VERSION = '0.97';
+$VERSION = '0.98';
 
 sub AUTOLOAD {
     # This AUTOLOAD is used to 'autoload' constants from the constant()
@@ -94,7 +94,7 @@ IO::Interface - Perl extension for access to network card configuration informat
   my $s = IO::Socket::INET->new(Proto => 'udp');
   my @interfaces = $s->if_list;
 
-  for my $f (@interfaces) {
+  for my $if (@interfaces) {
     print "interface = $if\n";
     my $flags = $s->if_flags($if);
     print "addr =      ",$s->if_addr($if),"\n",
