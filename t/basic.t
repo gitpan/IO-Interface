@@ -28,7 +28,8 @@ print @if ? 'ok ': 'not ok ',3,"\n";
 # find loopback interface
 my $loopback;
 foreach (@if) {
-  $loopback = $_ if $s->if_flags($_) & IFF_LOOPBACK;
+	next unless $s->if_flags($_) & IFF_UP;
+        $loopback = $_ if $s->if_flags($_) & IFF_LOOPBACK;
 }
 
 print $loopback ? 'ok ':'not ok ',4,"\n";

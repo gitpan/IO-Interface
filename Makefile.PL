@@ -8,6 +8,17 @@ WriteMakefile(
     'NAME'	=> 'IO::Interface',
     'VERSION_FROM' => 'Interface.pm', # finds $VERSION
     'LIBS'	=> ["@libs"],   # e.g., '-lm' 
-    'DEFINE'	=> '',     # e.g., '-DHAVE_SOMETHING' 
     'INC'	=> '',     # e.g., '-I/usr/include/other' 
+    CONFIGURE	=> sub {
+        my %attrs;
+        print "Checking for getifaddrs()...";
+        eval { require 'ifaddrs.ph' };
+        if ($@ && !-r "/usr/include/ifaddrs.h") {
+            print " Nope, will not use it.\n";
+        } else {
+            $attrs{DEFINE} = '-DUSE_GETIFADDRS';
+            print " Okay, I will use it.\n";
+        }
+        \%attrs;
+    },
 );

@@ -3,14 +3,26 @@
 #include "XSUB.h"
 
 /* socket definitions */
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 
 /* location of IFF_* constants */
 #include <net/if.h>
 
+/* location of getifaddrs() definition */
+#ifdef USE_GETIFADDRS
+#include <ifaddrs.h>
+#endif
+
 #ifndef SIOCGIFCONF
 #include <sys/sockio.h>
+#endif
+
+#ifdef OSIOCGIFCONF
+#define MY_SIOCGIFCONF OSIOCGIFCONF
+#else
+#define MY_SIOCGIFCONF SIOCGIFCONF
 #endif
 
 #ifdef PerlIO
@@ -569,11 +581,25 @@ _if_list(sock)
      InputStream sock
      PROTOTYPE: $
      PREINIT:
+#ifdef USE_GETIFADDRS
+       struct ifaddrs *ifa_start;
+       struct ifaddrs *ifa;
+#else
        struct ifconf ifc;
        struct ifreq  *ifr;
        int    lastlen,len;
        char   *buf,*ptr;
+#endif
      PPCODE:
+#ifdef USE_GETIFADDRS
+       if (getifaddrs(&ifa_start) < 0)
+	 XSRETURN_EMPTY;
+
+       for (ifa = ifa_start ; ifa ; ifa = ifa->ifa_next)
+	 XPUSHs(sv_2mortal(newSVpv(ifa->ifa_name,0)));
+
+       freeifaddrs(ifa_start);
+#else
        lastlen = 0;
        len     = 10 * sizeof(struct ifreq); /* initial buffer size guess */
        for ( ; ; ) {
@@ -581,7 +607,7 @@ _if_list(sock)
 	   croak("Couldn't malloc buffer for ioctl: %s",strerror(errno));
 	 ifc.ifc_len = len;
 	 ifc.ifc_buf = buf;
-	 if (ioctl(PerlIO_fileno(sock),SIOCGIFCONF,&ifc) < 0) {
+	 if (ioctl(PerlIO_fileno(sock),MY_SIOCGIFCONF,&ifc) < 0) {
 	   if (errno != EINVAL || lastlen != 0)
 	     XSRETURN_EMPTY;
 	 } else {
@@ -597,3 +623,4 @@ _if_list(sock)
 	 XPUSHs(sv_2mortal(newSVpv(ifr->ifr_name,0)));
        }
        safefree(buf);
+#endif

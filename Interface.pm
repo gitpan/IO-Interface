@@ -25,7 +25,7 @@ my @flags     = qw(IFF_ALLMULTI    IFF_AUTOMEDIA  IFF_BROADCAST
 @EXPORT = qw( );
 
 @ISA = qw(Exporter DynaLoader);
-$VERSION = '0.94';
+$VERSION = '0.97';
 
 sub AUTOLOAD {
     # This AUTOLOAD is used to 'autoload' constants from the constant()
@@ -89,13 +89,13 @@ IO::Interface - Perl extension for access to network card configuration informat
 =head1 SYNOPSIS
 
   use IO::Socket;
-  use IO::Interface;
+  use IO::Interface qw(:flags);
 
   my $s = IO::Socket::INET->new(Proto => 'udp');
   my @interfaces = $s->if_list;
 
   for my $f (@interfaces) {
-    print "interface = $f\n";
+    print "interface = $if\n";
     my $flags = $s->if_flags($if);
     print "addr =      ",$s->if_addr($if),"\n",
           "broadcast = ",$s->if_broadcast($if),"\n",
@@ -107,13 +107,13 @@ IO::Interface - Perl extension for access to network card configuration informat
     print "is broadcast\n"   if $flags & IFF_BROADCAST;
     print "is p-to-p\n"      if $flags & IFF_POINTOPOINT;
     print "is loopback\n"    if $flags & IFF_LOOPBACK;
-    print "is promiscuous\n" if $flags & IFF_PROMISCUOUS;
+    print "is promiscuous\n" if $flags & IFF_PROMISC;
     print "is multicast\n"   if $flags & IFF_MULTICAST;
     print "is notrailers\n"  if $flags & IFF_NOTRAILERS;
     print "is noarp\n"       if $flags & IFF_NOARP;
   }
   
-  $interface = $s->addr_to_interface('127.0.0.1');
+  my $interface = $s->addr_to_interface('127.0.0.1');
 
 
 =head1 DESCRIPTION
