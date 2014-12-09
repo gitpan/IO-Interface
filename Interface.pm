@@ -28,7 +28,7 @@ my @flags     = qw(IFF_ALLMULTI    IFF_AUTOMEDIA  IFF_BROADCAST
 @EXPORT = qw( );
 
 @ISA = qw(Exporter DynaLoader);
-$VERSION = '1.07';
+$VERSION = '1.08';
 
 sub AUTOLOAD {
     # This AUTOLOAD is used to 'autoload' constants from the constant()
@@ -285,9 +285,17 @@ This example determines whether interface 'tu0' supports multicasting:
 
 =head1 AUTHOR
 
-Lincoln Stein E<lt>lstein@cshl.orgE<gt>
+Lincoln D. Stein <lincoln.stein@gmail.com>
+Copyright 2001-2014, Lincoln D. Stein.
 
-This module is distributed under the same license as Perl itself.
+This library is distributed under the Perl Artistic License
+2.0. Please see LICENSE for more information.
+
+=head1 SUPPORT
+
+For feature requests, bug reports and code contributions, please use
+the GitHub repository at
+https://github.com/lstein/LibIO-Interface-Perl
 
 =head1 SEE ALSO
 
