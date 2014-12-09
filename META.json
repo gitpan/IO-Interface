@@ -1,39 +1,49 @@
 {
-   "abstract" : "unknown",
+   "abstract" : "Access and modify network interface card configuration",
    "author" : [
-      "unknown"
+      "Lincoln Stein <lincoln.stein@gmail.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.94, CPAN::Meta::Converter version 2.120351",
+   "generated_by" : "Module::Build version 0.4205",
    "license" : [
-      "unknown"
+      "perl_5"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
    "name" : "IO-Interface",
-   "no_index" : {
-      "directory" : [
-         "t",
-         "inc"
-      ]
-   },
    "prereqs" : {
       "build" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "0"
+            "ExtUtils::CBuilder" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "0"
+            "Module::Build" : "0.42"
          }
       },
       "runtime" : {
-         "requires" : {}
+         "requires" : {
+            "perl" : "5.005"
+         }
+      }
+   },
+   "provides" : {
+      "IO::Interface" : {
+         "file" : "lib/IO/Interface.pm",
+         "version" : "1.09"
+      },
+      "IO::Interface::Simple" : {
+         "file" : "lib/IO/Interface/Simple.pm"
       }
    },
    "release_status" : "stable",
-   "version" : "1.08"
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "1.09"
 }
